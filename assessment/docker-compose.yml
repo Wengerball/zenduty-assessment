@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    platform: linux/x86_64
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: 'pizza'
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pizzapassword'
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    ports:
+      - "5477:5432"
+    restart: always
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    entrypoint: /app/entrypoint.sh
+
+  celery:
+    build: .
+    command: celery -A assessment worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    environment:
+      - C_FORCE_ROOT=true
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  postgres_db:
