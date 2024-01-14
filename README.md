@@ -26,6 +26,11 @@ To run this project locally, follow these steps:
     ```bash
     docker-compose up -d
 
+3. Run tests.py:
+
+    ```bash
+    docker-compose run web python manage.py test 
+
 ## APIs and cURL Requests
 
 1. cURL Request for user to add pizzas and create an order
